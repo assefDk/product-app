@@ -1,16 +1,17 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     header('Location: login.php');
     exit;
 }
 
-// قراءة الملف وتحويل JSON إلى مصفوفة
-$products = json_decode(file_get_contents(__DIR__ . '/../data/products.json'), true);
+// قراءة ملف JSON وتحويله إلى مصفوفة
+  $products = json_decode(file_get_contents(__DIR__ . '/../data/products.json'), true);
+  if (!is_array($products)) {
+      $products = [];
+  }
 
-if (!is_array($products)) {
-    $products = [];
-}
 ?>
 
 <!DOCTYPE html>
@@ -81,47 +82,44 @@ if (!is_array($products)) {
   <?php if (count($products) === 0): ?>
     <p class="text-center">لا توجد منتجات للعرض حالياً.</p>
   <?php else: ?>
-    <?php foreach ($products as $index => $product): ?>
+    <?php foreach ($products as $product): ?>
       <div class="product">
-      <img src="../assets/images/img1.jpeg">
-
-
+        <!-- <img src="<?= $imgSrc ?>" alt="<?= htmlspecialchars($product['name']) ?>"> -->
+        <img src="../assets/images/img1.jpeg">
         <h3><?= htmlspecialchars($product['name']) ?></h3>
+
         <?php if (isset($product['price'])): ?>
           <p><?= htmlspecialchars($product['price']) ?> ريال</p>
         <?php endif; ?>
 
-        <?php
-        // عرض الوصف كمصفوفة من 3 عناصر كحد أقصى
-        echo "<ul>";
-        if (isset($product['description'])) {
-            if (is_array($product['description'])) {
-                $count = 0;
-                foreach ($product['description'] as $descItem) {
-                    echo "<li>" . htmlspecialchars(trim($descItem)) . "</li>";
-                    $count++;
-                    if ($count >= 3) break;
-                }
-            } else {
-                $sentences = preg_split('/[\.\n\r]+/', $product['description']);
-                $count = 0;
-                foreach ($sentences as $sentence) {
-                    $trimmed = trim($sentence);
-                    if ($trimmed !== '') {
-                        echo "<li>" . htmlspecialchars($trimmed) . "</li>";
-                        $count++;
-                    }
-                    if ($count >= 3) break;
-                }
-            }
-        }
-        echo "</ul>";
-        ?>
+        <ul>
+          <?php
+          if (isset($product['description'])) {
+              if (is_array($product['description'])) {
+                  $count = 0;
+                  foreach ($product['description'] as $descItem) {
+                      echo "<li>" . htmlspecialchars(trim($descItem)) . "</li>";
+                      if (++$count >= 3) break;
+                  }
+              } else {
+                  $sentences = preg_split('/[\.\n\r]+/', $product['description']);
+                  $count = 0;
+                  foreach ($sentences as $sentence) {
+                      $trimmed = trim($sentence);
+                      if ($trimmed !== '') {
+                          echo "<li>" . htmlspecialchars($trimmed) . "</li>";
+                          if (++$count >= 3) break;
+                      }
+                  }
+              }
+          }
+          ?>
+        </ul>
 
-        <!-- <div class="btn-group d-flex gap-2">
-          <a href="edit.php?index=<?= $index ?>" class="btn btn-primary btn-sm flex-fill">تعديل</a>
-          <a href="delete.php?index=<?= $index ?>" class="btn btn-danger btn-sm flex-fill" onclick="return confirm('هل أنت متأكد من حذف هذا المنتج؟');">حذف</a>
-        </div> -->
+        <div class="btn-group d-flex gap-2">
+          <a href="edit.php?id=<?= urlencode($product['id']) ?>" class="btn btn-primary btn-sm flex-fill">تعديل</a>
+          <a href="delete.php?id=<?= urlencode($product['id']) ?>" class="btn btn-danger btn-sm flex-fill" onclick="return confirm('هل أنت متأكد من حذف هذا المنتج؟');">حذف</a>
+        </div>
       </div>
     <?php endforeach; ?>
   <?php endif; ?>
