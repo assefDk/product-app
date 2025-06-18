@@ -1,4 +1,0 @@
-<FilesMatch "products\.json$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../classes/ProductLoader.php';
+
 session_start();
 
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
@@ -6,11 +8,8 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit;
 }
 
-// قراءة ملف JSON وتحويله إلى مصفوفة
-  $products = json_decode(file_get_contents(__DIR__ . '/../data/products.json'), true);
-  if (!is_array($products)) {
-      $products = [];
-  }
+$loader = new ProductLoader('C:/xampp/data/products.json');
+$products = $loader->loadProducts();
 
 ?>
 
